@@ -468,7 +468,7 @@ textarea {
 
 .grid-cards {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 1rem;
 }
 
@@ -501,7 +501,7 @@ textarea {
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 1rem;
 }
 
@@ -733,7 +733,7 @@ textarea {
 
 .cart-grid {
   display: grid;
-  grid-template-columns: 1.5fr 0.8fr;
+  grid-template-columns: 1fr;
   gap: 1rem;
   align-items: start;
 }
@@ -797,6 +797,39 @@ textarea {
   align-items: end;
 }
 
+/* Responsive cart layout */
+@media (min-width: 768px) {
+  .cart-grid {
+    grid-template-columns: 1.5fr 0.8fr;
+  }
+  .cart-item {
+    flex-direction: row;
+    align-items: center;
+  }
+  .cart-item-actions {
+    align-items: center;
+  }
+}
+
+@media (max-width: 767px) {
+  .cart-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cart-item-main {
+    align-items: start;
+  }
+  .cart-item-actions {
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    gap: 0.5rem;
+  }
+  .cart-summary .btn-primary {
+    width: 100%;
+  }
+}
+
 .cart-item-price {
   margin: 0;
   font-weight: 800;
@@ -842,28 +875,21 @@ textarea {
   text-align: center;
 }
 
-@media (max-width: 900px) {
+@media (min-width: 640px) {
   .product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .grid-cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .hero-inner {
-    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .cart-grid {
-    grid-template-columns: 1fr;
-  }
-  .admin-split {
-    grid-template-columns: 1fr;
-  }
-  .contact-grid {
-    grid-template-columns: 1fr;
-  }
-  .order-row,
-  .table-row {
-    grid-template-columns: 1fr;
+  .grid-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -899,15 +925,6 @@ textarea {
   }
   .user-menu {
     display: none;
-  }
-  .product-grid {
-    grid-template-columns: 1fr;
-  }
-  .grid-cards {
-    grid-template-columns: 1fr;
-  }
-  .grid-2 {
-    grid-template-columns: 1fr;
   }
   .site-main {
     padding-top: 1rem;

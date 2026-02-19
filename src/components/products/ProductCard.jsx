@@ -23,71 +23,75 @@ export function ProductCard({ product, onAddToCart }) {
   };
 
   return (
-    <article className="product-card">
-      <div className="product-image-wrapper">
+    <article className="rounded-lg border border-[#e6f0da] bg-white p-4 shadow-sm">
+      <div className="relative">
         {product.bestseller && (
-          <span className="badge-bestseller" aria-label="Bestseller">
+          <span className="absolute left-3 top-3 text-xs rounded-full bg-[#7aa556] px-2 py-1 text-white">
             Bestseller
           </span>
         )}
-        {showImage && imageSrc ? (
-          <img
-            src={imageSrc}
-            alt={product.name}
-            className="product-image"
-            onError={() => {
-              setImageIndex((current) => {
-                if (current + 1 < imageCandidates.length) {
-                  return current + 1;
-                }
-                setShowImage(false);
-                return current;
-              });
-            }}
-          />
-        ) : (
-          <div className="product-image-placeholder" aria-hidden="true" />
-        )}
-      </div>
-      <div className="product-body">
-        <h3 className="product-name">{product.name}</h3>
-        <p className="product-category">{product.category}</p>
-        <p className="product-description">{product.description}</p>
-
-        <div className="product-pricing">
-          <p className="price-main">
-            {'\u20B9'}{priceToShow?.toFixed ? priceToShow.toFixed(2) : priceToShow}
-            <span className="price-unit"> / unit</span>
-          </p>
-          <p className="price-note">Standard customer pricing</p>
-        </div>
-
-        <div className="product-actions">
-          <label className="quantity-label">
-            Qty
-            <input
-              type="number"
-              min="1"
-              value={qty}
-              onChange={(e) => setQty(Number(e.target.value) || 1)}
+        <div className="h-40 flex items-center justify-center overflow-hidden rounded-md bg-[#f5f8ef]">
+          {showImage && imageSrc ? (
+            <img
+              src={imageSrc}
+              alt={product.name}
+              className="max-h-full object-contain"
+              onError={() => {
+                setImageIndex((current) => {
+                  if (current + 1 < imageCandidates.length) {
+                    return current + 1;
+                  }
+                  setShowImage(false);
+                  return current;
+                });
+              }}
             />
-          </label>
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={handleAdd}
-          >
-            Add to cart
-          </button>
+          ) : (
+            <div className="w-full h-full" aria-hidden="true" />
+          )}
+        </div>
+      </div>
+
+      <div className="mt-3">
+        <h3 className="text-sm font-semibold text-slate-900">{product.name}</h3>
+        <p className="text-xs text-slate-500 mt-1">{product.category}</p>
+        {product.description && (
+          <p className="text-sm text-slate-600 mt-2 line-clamp-2">{product.description}</p>
+        )}
+
+        <div className="mt-3 flex items-center justify-between">
+          <div className="text-lg font-bold text-slate-900">{"\u20B9"}{priceToShow?.toFixed ? priceToShow.toFixed(2) : priceToShow}</div>
+          <div className="flex items-center gap-2">
+            <div className="inline-flex items-center rounded border overflow-hidden">
+              <button
+                aria-label="Decrease quantity"
+                onClick={() => setQty((q) => Math.max(1, q - 1))}
+                className="px-2 py-1 text-sm text-slate-700 hover:bg-[#f0f6e8]"
+              >
+                −
+              </button>
+              <div className="px-3 py-1 text-sm text-center w-10">{qty}</div>
+              <button
+                aria-label="Increase quantity"
+                onClick={() => setQty((q) => q + 1)}
+                className="px-2 py-1 text-sm text-slate-700 hover:bg-[#f0f6e8]"
+              >
+                +
+              </button>
+            </div>
+            <button
+              type="button"
+              className="rounded bg-[#7aa556] px-3 py-1 text-sm font-semibold text-white hover:bg-[#5f8740] transition-transform transform hover:-translate-y-0.5"
+              onClick={handleAdd}
+              aria-label={`Add ${qty} ${product.name} to cart`}
+            >
+              Add
+            </button>
+          </div>
         </div>
 
         {product.stock !== undefined && (
-          <p className="stock-label">
-            In stock: {product.stock}{' '}
-            {product.stock < 5 && (
-              <span className="stock-low">Low stock</span>
-            )}
-          </p>
+          <p className="text-xs text-slate-500 mt-2">In stock: {product.stock}{product.stock < 5 && <span className="text-red-500 ml-2">Low</span>}</p>
         )}
       </div>
     </article>

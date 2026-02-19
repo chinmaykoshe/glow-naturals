@@ -59,8 +59,9 @@ export function CartPage() {
           </Link>
         </div>
       ) : (
-        <div className="cart-grid">
-          <div className="card">
+        <div className="container">
+          <div className="cart-grid">
+            <div className="card">
             <ul className="cart-list" aria-label="Cart items">
               {items.map((item) => {
                 const unit = computeItemPrice(item);
@@ -79,19 +80,26 @@ export function CartPage() {
                         <p className="cart-item-sub">{item.category}</p>
                       </div>
                     </div>
-
                     <div className="cart-item-actions">
-                      <label className="quantity-label">
-                        Qty
-                        <input
-                          type="number"
-                          min="1"
-                          value={item.quantity}
-                          onChange={(e) =>
-                            updateQuantity(item.productId, Number(e.target.value) || 1)
-                          }
-                        />
-                      </label>
+                      <div className="inline-flex items-center quantity-stepper" role="group" aria-label={`Quantity for ${item.name}`}>
+                        <button
+                          type="button"
+                          className="btn-ghost"
+                          onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1))}
+                          aria-label={`Decrease quantity for ${item.name}`}
+                        >
+                          −
+                        </button>
+                        <div className="px-3">{item.quantity}</div>
+                        <button
+                          type="button"
+                          className="btn-ghost"
+                          onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                          aria-label={`Increase quantity for ${item.name}`}
+                        >
+                          +
+                        </button>
+                      </div>
                       <p className="cart-item-price">{'\u20B9'}{(unit * item.quantity).toFixed(2)}</p>
                       <button
                         type="button"
@@ -108,7 +116,7 @@ export function CartPage() {
             </ul>
           </div>
 
-          <aside className="card cart-summary" aria-label="Order summary">
+            <aside className="card cart-summary" aria-label="Order summary">
             <h2>Summary</h2>
             <div className="form">
               <label>
@@ -161,6 +169,7 @@ export function CartPage() {
             </button>
             <p className="form-note">All prices are standard customer prices.</p>
           </aside>
+          </div>
         </div>
       )}
     </section>

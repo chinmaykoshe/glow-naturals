@@ -42,7 +42,7 @@ export function HomePage() {
             </h1>
             <p className="max-w-xl text-base text-slate-600 md:text-lg">
               {hero?.subtitle ||
-                'Homemade personal care products by Glow Naturals. B2C only, shipping pan India, COD not available.'}
+                'Homemade personal care products by Glow Naturals. Shipping pan India, COD not available.'}
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -103,15 +103,13 @@ export function HomePage() {
             <h2 className="text-3xl font-black text-slate-900 md:text-4xl">
               Most-loved picks from Glow Naturals
             </h2>
-            <p className="text-slate-600">
-              Explore products trusted for everyday use.
-            </p>
+            <p className="text-slate-600">Explore products trusted for everyday use.</p>
           </header>
 
           {loading ? (
             <p className="text-slate-600">Loading products...</p>
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-live="polite">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3" aria-live="polite">
               {bestsellers.length === 0 && <p>No products yet.</p>}
               {bestsellers.map((product) => (
                 <ProductCard key={product.id} product={product} onAddToCart={addToCart} />
@@ -132,7 +130,7 @@ export function HomePage() {
             </h2>
             <p className="max-w-xl text-slate-600">
               Glow Naturals products are made to be easy to choose and easy to use. No complex plans,
-              no B2B workflow, just direct customer-first care.
+              just direct customer-first care.
             </p>
             <div className="flex flex-wrap gap-2">
               {['Skincare', 'Haircare', 'Lip care', 'Facewash', 'Perfume', 'Body care'].map((item) => (
@@ -156,7 +154,7 @@ export function HomePage() {
             <article className="rounded-2xl border border-[#7aa556]/20 bg-[#f5f8ef] p-5">
               <h3 className="text-lg font-bold text-slate-900">Transparent pricing</h3>
               <p className="mt-2 text-slate-600">
-                One simple B2C price model, clear and direct.
+                One simple price model, clear and direct.
               </p>
             </article>
             <article className="rounded-2xl border border-[#7aa556]/20 bg-[#f5f8ef] p-5">
@@ -208,7 +206,7 @@ export function HomePage() {
             <p className="text-slate-700">Shipping: Pan India</p>
             <p className="text-slate-700">Support: Contact form and email</p>
             <p className="text-slate-700">Payment: COD not available</p>
-            <p className="text-slate-700">Brand: Glow Naturals (B2C)</p>
+            <p className="text-slate-700">Brand: Glow Naturals</p>
           </div>
         </div>
       </section>
