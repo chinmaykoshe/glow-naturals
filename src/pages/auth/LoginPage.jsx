@@ -64,7 +64,7 @@ export function LoginPage() {
         </button>
 
         <p className="form-note">
-          New here? <Link to="/register">Create an account</Link>.
+          New here? <Link to="/register" className='text-blue-500'>Create an account</Link>.
         </p>
       </form>
     </section>

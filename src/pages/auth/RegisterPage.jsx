@@ -75,7 +75,7 @@ export function RegisterPage() {
         </button>
 
         <p className="form-note">
-          Already have an account? <Link to="/login">Login</Link>.
+          Already have an account? <Link to="/login" className='text-blue-500'>Login</Link>.
         </p>
       </form>
     </section>
