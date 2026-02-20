@@ -63,7 +63,7 @@ export function HomePage() {
           <div className="grid gap-4">
             {hero?.imageUrl ? (
               <img
-                src={hero?.imageUrl || "/public/default-images/logo.png"}
+                src={hero?.imageUrl || "//public/default-images/logo.png"}
                 alt={hero?.title || "Glow Naturals featured product"}
                 className="h-72 w-full rounded-2xl border border-[#7aa556]/30 object-cover shadow-sm md:h-[25rem]"
               />

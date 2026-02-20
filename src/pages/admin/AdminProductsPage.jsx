@@ -5,7 +5,6 @@ import {
   getAllProducts,
   updateProduct,
 } from '../../services/productService';
-import { uploadProductImage } from '../../services/storageService';
 
 const emptyForm = {
   name: '',
@@ -26,19 +25,19 @@ export function AdminProductsPage() {
 
   const [selectedId, setSelectedId] = useState(null);
   const [form, setForm] = useState(emptyForm);
-  const [imageFile, setImageFile] = useState(null);
   const [showOnlyBestsellers, setShowOnlyBestsellers] = useState(false);
 
   const selected = useMemo(
     () => products.find((p) => p.id === selectedId) || null,
-    [products, selectedId],
+    [products, selectedId]
   );
+
   const visibleProducts = useMemo(
     () =>
       showOnlyBestsellers
         ? products.filter((product) => Boolean(product.bestseller))
         : products,
-    [products, showOnlyBestsellers],
+    [products, showOnlyBestsellers]
   );
 
   const load = async () => {
@@ -61,9 +60,9 @@ export function AdminProductsPage() {
   useEffect(() => {
     if (!selected) {
       setForm(emptyForm);
-      setImageFile(null);
       return;
     }
+
     setForm({
       name: selected.name || '',
       description: selected.description || '',
@@ -73,7 +72,6 @@ export function AdminProductsPage() {
       bestseller: Boolean(selected.bestseller),
       imageUrl: selected.imageUrl || '',
     });
-    setImageFile(null);
   }, [selected]);
 
   const onChange = (key, value) => {
@@ -83,7 +81,6 @@ export function AdminProductsPage() {
   const onNew = () => {
     setSelectedId(null);
     setForm(emptyForm);
-    setImageFile(null);
     setStatus('');
     setError('');
   };
@@ -93,23 +90,17 @@ export function AdminProductsPage() {
     setSaving(true);
     setError('');
     setStatus('');
+
     try {
       if (selectedId) {
         await updateProduct(selectedId, form);
-        if (imageFile) {
-          const url = await uploadProductImage(imageFile, { productId: selectedId });
-          await updateProduct(selectedId, { ...form, imageUrl: url });
-        }
         setStatus('Product updated.');
       } else {
         const id = await createProduct(form);
-        if (imageFile) {
-          const url = await uploadProductImage(imageFile, { productId: id });
-          await updateProduct(id, { ...form, imageUrl: url });
-        }
         setSelectedId(id);
         setStatus('Product created.');
       }
+
       await load();
     } catch (err) {
       setError(err?.message || 'Failed to save product');
@@ -121,8 +112,7 @@ export function AdminProductsPage() {
   const onDelete = async (id) => {
     const ok = confirm('Delete this product? This cannot be undone.');
     if (!ok) return;
-    setError('');
-    setStatus('');
+
     try {
       await deleteProduct(id);
       if (selectedId === id) onNew();
@@ -134,42 +124,19 @@ export function AdminProductsPage() {
   };
 
   const onToggleBestsellerQuick = async (product) => {
-    setError('');
-    setStatus('');
     try {
-      await updateProduct(product.id, { ...product, bestseller: !product.bestseller });
+      await updateProduct(product.id, {
+        ...product,
+        bestseller: !product.bestseller,
+      });
       await load();
       setStatus(
-        `${product.name} ${product.bestseller ? 'removed from' : 'added to'} bestsellers.`,
+        `${product.name} ${
+          product.bestseller ? 'removed from' : 'added to'
+        } bestsellers.`
       );
     } catch (err) {
       setError(err?.message || 'Failed to update bestseller flag');
-    }
-  };
-
-  const onAutoPickBestsellers = async () => {
-    setError('');
-    setStatus('');
-    try {
-      if (products.length === 0) {
-        setStatus('No products available to mark as bestsellers.');
-        return;
-      }
-      const shuffled = [...products];
-      for (let i = shuffled.length - 1; i > 0; i -= 1) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-      const pickedIds = new Set(shuffled.slice(0, Math.min(8, shuffled.length)).map((p) => p.id));
-      await Promise.all(
-        products.map((product) =>
-          updateProduct(product.id, { ...product, bestseller: pickedIds.has(product.id) }),
-        ),
-      );
-      await load();
-      setStatus('Random bestsellers selected successfully.');
-    } catch (err) {
-      setError(err?.message || 'Failed to auto-select bestsellers');
     }
   };
 
@@ -178,16 +145,13 @@ export function AdminProductsPage() {
       <header className="section-header admin-header">
         <div>
           <h1>Products</h1>
-          <p>Add, edit, delete products and upload images.</p>
+          <p>Add, edit, delete products and manage image URLs.</p>
         </div>
         <div className="filters">
-          <button type="button" className="btn-secondary" onClick={onAutoPickBestsellers}>
-            Auto pick bestsellers
-          </button>
           <button
             type="button"
             className="btn-ghost"
-            onClick={() => setShowOnlyBestsellers((value) => !value)}
+            onClick={() => setShowOnlyBestsellers((v) => !v)}
           >
             {showOnlyBestsellers ? 'Show all' : 'Only bestsellers'}
           </button>
@@ -198,56 +162,54 @@ export function AdminProductsPage() {
       </header>
 
       <div className="admin-split">
+        {/* PRODUCT LIST */}
         <div className="card">
           <h2>Catalog</h2>
           {loading ? (
             <p>Loading...</p>
           ) : (
-            <ul className="admin-list" aria-label="Products list">
+            <ul className="admin-list">
               {visibleProducts.map((p) => (
                 <li key={p.id} className="admin-list-item">
                   <button
                     type="button"
-                    className={`admin-list-button ${selectedId === p.id ? 'is-active' : ''}`}
+                    className={`admin-list-button ${
+                      selectedId === p.id ? 'is-active' : ''
+                    }`}
                     onClick={() => setSelectedId(p.id)}
-                    aria-label={`Edit ${p.name}`}
                   >
-                    <span className="admin-list-title">{p.name}</span>
+                    <span>{p.name}</span>
                     <span className="muted">
-                      Stock: {p.stock ?? 0} {p.stock < 5 ? '| Low' : ''} {p.bestseller ? '| Bestseller' : ''}
+                      Stock: {p.stock ?? 0}{' '}
+                      {p.bestseller ? '| Bestseller' : ''}
                     </span>
                   </button>
+
                   <button
                     type="button"
                     className="btn-secondary"
                     onClick={() => onToggleBestsellerQuick(p)}
-                    aria-label={`Toggle bestseller for ${p.name}`}
                   >
                     {p.bestseller ? 'Unmark' : 'Mark'}
                   </button>
+
                   <button
                     type="button"
                     className="btn-ghost"
                     onClick={() => onDelete(p.id)}
-                    aria-label={`Delete ${p.name}`}
                   >
                     Delete
                   </button>
                 </li>
               ))}
-              {visibleProducts.length === 0 && (
-                <li className="muted">
-                  {products.length === 0
-                    ? 'No products yet.'
-                    : 'No bestsellers yet. Use Auto pick bestsellers.'}
-                </li>
-              )}
             </ul>
           )}
         </div>
 
+        {/* FORM */}
         <form className="card form" onSubmit={onSave}>
           <h2>{selectedId ? 'Edit product' : 'Create product'}</h2>
+
           <label>
             Name
             <input
@@ -256,14 +218,16 @@ export function AdminProductsPage() {
               required
             />
           </label>
+
           <label>
             Category
             <input
               value={form.category}
               onChange={(e) => onChange('category', e.target.value)}
-              placeholder="Skincare, Body, Hair..."
+              placeholder="facewash, shampoo, serum..."
             />
           </label>
+
           <label>
             Description
             <textarea
@@ -282,10 +246,13 @@ export function AdminProductsPage() {
                 min="0"
                 step="0.01"
                 value={form.retailPrice}
-                onChange={(e) => onChange('retailPrice', Number(e.target.value))}
+                onChange={(e) =>
+                  onChange('retailPrice', Number(e.target.value))
+                }
                 required
               />
             </label>
+
             <label>
               Stock
               <input
@@ -293,7 +260,9 @@ export function AdminProductsPage() {
                 min="0"
                 step="1"
                 value={form.stock}
-                onChange={(e) => onChange('stock', Number(e.target.value))}
+                onChange={(e) =>
+                  onChange('stock', Number(e.target.value))
+                }
                 required
               />
             </label>
@@ -303,29 +272,31 @@ export function AdminProductsPage() {
             <input
               type="checkbox"
               checked={form.bestseller}
-              onChange={(e) => onChange('bestseller', e.target.checked)}
+              onChange={(e) =>
+                onChange('bestseller', e.target.checked)
+              }
             />
             Bestseller
           </label>
 
+          {/* ✅ IMAGE URL INPUT */}
           <label>
-            Product image
+            Image URL (optional)
             <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+              type="text"
+              value={form.imageUrl}
+              onChange={(e) =>
+                onChange('imageUrl', e.target.value)
+              }
+              placeholder="https://example.com/image.jpg"
             />
-            {form.imageUrl && (
-              <span className="muted">Current image is set.</span>
-            )}
+            <span className="muted">
+              Leave empty to use category default image.
+            </span>
           </label>
 
           {status && <p className="form-success">{status}</p>}
-          {error && (
-            <p className="form-error" role="alert">
-              {error}
-            </p>
-          )}
+          {error && <p className="form-error">{error}</p>}
 
           <button type="submit" className="btn-primary" disabled={saving}>
             {saving ? 'Saving...' : 'Save'}
@@ -335,5 +306,3 @@ export function AdminProductsPage() {
     </section>
   );
 }
-
-
