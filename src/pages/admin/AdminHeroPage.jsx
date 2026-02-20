@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { getActiveHero, upsertHero } from '../../services/heroService';
-import { uploadHeroImage } from '../../services/storageService';
 import { HeroSection } from '../../components/hero/HeroSection';
+
+const DEFAULT_HERO_IMAGE = '/assets/glownaturalslogo.png';
 
 export function AdminHeroPage() {
   const [hero, setHero] = useState({
@@ -9,14 +10,14 @@ export function AdminHeroPage() {
     subtitle: '',
     buttonText: '',
     buttonLink: '',
-    imageUrl: '',
+    imageUrl: DEFAULT_HERO_IMAGE,
     isActive: false,
   });
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
-  const [imageFile, setImageFile] = useState(null);
 
   useEffect(() => {
     async function load() {
@@ -24,35 +25,42 @@ export function AdminHeroPage() {
       setError('');
       try {
         const doc = await getActiveHero();
-        if (doc) setHero((prev) => ({ ...prev, ...doc }));
+        if (doc) {
+          setHero({
+            ...doc,
+            imageUrl: doc.imageUrl || DEFAULT_HERO_IMAGE,
+          });
+        }
       } catch (err) {
-        setError(err?.message || 'Failed to load hero');
+        setError('Failed to load hero content.');
       } finally {
         setLoading(false);
       }
     }
+
     load();
   }, []);
 
-  const onChange = (key, value) => setHero((prev) => ({ ...prev, [key]: value }));
+  const onChange = (key, value) =>
+    setHero((prev) => ({ ...prev, [key]: value }));
 
   const onSave = async (e) => {
     e.preventDefault();
     setSaving(true);
     setError('');
     setStatus('');
+
     try {
-      let next = { ...hero };
-      if (imageFile) {
-        const url = await uploadHeroImage(imageFile);
-        next = { ...next, imageUrl: url };
-      }
-      await upsertHero(next);
-      setHero(next);
-      setImageFile(null);
-      setStatus('Hero updated.');
+      const heroToSave = {
+        ...hero,
+        imageUrl: hero.imageUrl || DEFAULT_HERO_IMAGE,
+      };
+
+      await upsertHero(heroToSave);
+      setHero(heroToSave);
+      setStatus('Hero updated successfully.');
     } catch (err) {
-      setError(err?.message || 'Failed to save hero');
+      setError('Failed to save hero.');
     } finally {
       setSaving(false);
     }
@@ -61,16 +69,18 @@ export function AdminHeroPage() {
   return (
     <section className="section">
       <header className="section-header">
-        <h1>Hero editor</h1>
-        <p>Update the homepage campaign content and image.</p>
+        <h1>Hero Editor</h1>
+        <p>Update homepage campaign content and image.</p>
       </header>
 
       {loading ? (
         <p>Loading...</p>
       ) : (
         <div className="admin-split">
+          {/* FORM */}
           <form className="card form" onSubmit={onSave}>
-            <h2>Edit hero</h2>
+            <h2>Edit Hero</h2>
+
             <label>
               Title
               <input
@@ -79,6 +89,7 @@ export function AdminHeroPage() {
                 required
               />
             </label>
+
             <label>
               Subtitle
               <textarea
@@ -87,19 +98,25 @@ export function AdminHeroPage() {
                 onChange={(e) => onChange('subtitle', e.target.value)}
               />
             </label>
+
             <div className="grid-2">
               <label>
                 Button text
                 <input
                   value={hero.buttonText}
-                  onChange={(e) => onChange('buttonText', e.target.value)}
+                  onChange={(e) =>
+                    onChange('buttonText', e.target.value)
+                  }
                 />
               </label>
+
               <label>
                 Button link
                 <input
                   value={hero.buttonLink}
-                  onChange={(e) => onChange('buttonLink', e.target.value)}
+                  onChange={(e) =>
+                    onChange('buttonLink', e.target.value)
+                  }
                   placeholder="/products"
                 />
               </label>
@@ -109,41 +126,64 @@ export function AdminHeroPage() {
               <input
                 type="checkbox"
                 checked={Boolean(hero.isActive)}
-                onChange={(e) => onChange('isActive', e.target.checked)}
+                onChange={(e) =>
+                  onChange('isActive', e.target.checked)
+                }
               />
               Campaign active
             </label>
 
+            {/* ✅ IMAGE URL INSTEAD OF FILE */}
             <label>
-              Hero image
+              Hero image URL
               <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                type="text"
+                value={hero.imageUrl}
+                onChange={(e) =>
+                  onChange('imageUrl', e.target.value)
+                }
+                placeholder="/assets/glownaturalslogo.png"
               />
-              {hero.imageUrl && <span className="muted">Current image is set.</span>}
+              <span className="muted">
+                Leave empty to use default logo.
+              </span>
             </label>
 
-            {status && <p className="form-success">{status}</p>}
+            {status && (
+              <p className="form-success">{status}</p>
+            )}
             {error && (
               <p className="form-error" role="alert">
                 {error}
               </p>
             )}
 
-            <button type="submit" className="btn-primary" disabled={saving}>
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={saving}
+            >
               {saving ? 'Saving...' : 'Save hero'}
             </button>
           </form>
 
+          {/* PREVIEW */}
           <div className="card">
             <h2>Preview</h2>
-            <p className="muted">Homepage will only render the hero when active.</p>
-            <HeroSection hero={hero} />
+            <p className="muted">
+              Homepage renders hero only when active.
+            </p>
+
+            <HeroSection
+              hero={{
+                ...hero,
+                imageUrl:
+                  hero.imageUrl || DEFAULT_HERO_IMAGE,
+              }}
+            />
           </div>
         </div>
       )}
     </section>
   );
 }
-
